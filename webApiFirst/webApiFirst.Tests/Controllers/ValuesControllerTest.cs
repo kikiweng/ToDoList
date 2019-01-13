@@ -18,16 +18,20 @@ namespace webApiFirst.Tests.Controllers
         {
             // 排列
             ValuesController controller = new ValuesController();
+            Assert.AreEqual("value2", controller.Get(2));
 
             // 作用
-            IEnumerable<string> result = controller.Get();
+            //IEnumerable<string> result = controller.Get();
 
-            // 判斷提示
-            Assert.IsNotNull(result);
-            Assert.AreEqual(2, result.Count());
-            Assert.AreEqual("value1", result.ElementAt(0));
-            Assert.AreEqual("value2", result.ElementAt(1));
+            //// 判斷提示
+            //Assert.IsNotNull(result);
+            //Assert.AreEqual(2, result.Count());
+            //Assert.AreEqual("value1", result.ElementAt(0));
+            //Assert.AreEqual("value2", result.ElementAt(1));
+
+        
         }
+        
 
         [TestMethod]
         public void GetById()
