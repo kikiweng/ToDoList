@@ -6,135 +6,149 @@ using System.Net.Http;
 using System.Web.Http;
 using MySql.Data;
 using MySql.Data.MySqlClient;
+using System.Web;
+using System.Configuration;
+using webApiFirst.App_Start;
+using System.Web.Mvc;
+using System.Text;
+using System.Net.Http.Headers;
+using webApiFirst.Models;
+using System.Web.Helpers;
+
+
 namespace webApiFirst.Controllers
 {
-    [AllowAnonymous]
-    [Authorize]
     public class ToDoListController : ApiController
-    {      
+    {
+        //CRUD create read upadte delete
         //打某隻 post api 可以新增一個 todo 事件。
-        public string Post(string itemName)
+        public IHttpActionResult POST(string name)
         {
-            string mesg = "";
-            MySqlConnection conn = dbConnect();
-            string insertSql = "INSERT INTO list (listName) VALUES ('"+itemName+"')";
+            
+            MySqlConnection conn = DBconfig.register();
+            conn.Open();
+            List<MsgModels> response = new List<MsgModels>();
+            string insertSql = "INSERT INTO list (name) VALUES ('" + @name + "')";
+          
+            MsgModels msg = new MsgModels();
             try
-            {
+                {
                 MySqlCommand cmd = new MySqlCommand(insertSql, conn);
+                cmd.Parameters.AddWithValue(@name, name);
                 cmd.ExecuteNonQuery();
-                mesg = itemName;
-            }catch(Exception ex)
+                msg.success = true;
+                msg.todoName = name;
+                response.Add(msg);
+
+            }
+            catch (Exception ex)
             {
-                mesg = ex.ToString();
+               
             }
             finally
             {
                 conn.Close();
             }
-            return mesg;
+            return Ok(msg.success);
+            
         }
-
+        
         //打某隻 get api 可以取得所有的 todo 事件
-        public string Get()
+        public IHttpActionResult GET()
         {
-            string mesg = "";
-            MySqlConnection conn = dbConnect();
-            string selectSql = "SELECT * FROM list WHERE delTime IS NULL ";
+            MsgModels msg = new MsgModels();
+           
+            List<TodoModel> list = new List<TodoModel>();
+            MySqlConnection conn = DBconfig.register();
+            conn.Open();
+            
+            string selectSql = "SELECT * FROM list WHERE deleted_at IS NULL ";
             try
             {
                 MySqlCommand cmd = new MySqlCommand(selectSql, conn);
-                cmd.ExecuteNonQuery();
-                mesg = "select success";
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    TodoModel todo = new TodoModel();
+                    todo.id = reader["id"].ToString();
+                    todo.name = reader["name"].ToString();
+                    todo.deleted_at = reader["deleted_at"].ToString();  
+                    list.Add(todo);
+                }                
             }
             catch (Exception ex)
             {
-                mesg = ex.ToString();
+               
             }
             finally
             {
                 conn.Close();
             }
-            return mesg;
+            return Ok(list);
+
         }
 
-
+        
         // 打某隻 delete api 可以移除某個 todo 事件。
         //update delTime
-        public string Delete(string listNo)
+        public IHttpActionResult DELETE(string listNo)
         {
-            string mesg = "";
+          
             string sysTime = DateTime.Now.ToString("yyyy/MM/dd");
-            MySqlConnection conn = dbConnect();
-            string updateSql = "UPDATE list SET delTime = '"+sysTime+"' WHERE listNo = '"+listNo+"'";
+
+            MsgModels msg = new MsgModels();
+            MySqlConnection conn = DBconfig.register();
+            conn.Open();
+
+            string updateSql = "UPDATE list SET deleted_at = '" + sysTime + "' WHERE id = '" + @listNo + "'";
             try
             {
                 MySqlCommand cmd = new MySqlCommand(updateSql, conn);
+                cmd.Parameters.AddWithValue(@listNo, listNo);
                 cmd.ExecuteNonQuery();
-                mesg = "delete success";
+                msg.success = true;
+                msg.todoName = listNo;
             }
             catch (Exception ex)
             {
-                mesg = ex.ToString();
+                
             }
             finally
             {
                 conn.Close();
             }
-            return mesg;
+            return Ok(msg.todoName);
         }
 
-
-        public string Put(string listNo,string newListName)
+        
+        public IHttpActionResult PUT(string listNo, string newListName)
         {
-            string mesg = "";        
-            MySqlConnection conn = dbConnect();
-            string updateSql = "UPDATE list SET listName = '" + newListName + "' WHERE listNo = '" + listNo + "'";
+
+            MsgModels msg = new MsgModels();
+            MySqlConnection conn = DBconfig.register();
+            conn.Open();
+            string updateSql = "UPDATE list SET name = '" + @newListName + "' WHERE id = '" + @listNo + "'";
             try
             {
                 MySqlCommand cmd = new MySqlCommand(updateSql, conn);
+                cmd.Parameters.AddWithValue(@newListName, newListName);
+                cmd.Parameters.AddWithValue(@listNo, listNo);
                 cmd.ExecuteNonQuery();
-                mesg = "update success";
+                msg.todoName = newListName;
+                msg.success = true;
             }
             catch (Exception ex)
             {
-                mesg = ex.ToString();
+
             }
             finally
             {
                 conn.Close();
             }
-            return mesg;
+            return Ok(msg.todoName);
+            //return Json<MsgModels>(msg);
+
         }
-
-
-
-
-        //DBconnect
-        public  MySqlConnection dbConnect()
-        {
-            string dbHost = "166.62.30.147";
-            string dbUser = "chichi";
-            string dbPass = "123456789";
-            string dbName = "77Test";
-
-            string mesg = "";
-            MySqlConnection conn = new MySqlConnection();
-            string connStr = "server=" + dbHost + ";uid=" + dbUser + ";pwd=" + dbPass + ";database=" + dbName;
-            try
-            {
-                conn = new MySqlConnection(connStr);
-                conn.Open();
-                mesg = "dbConnect success";
-
-            }
-            catch (Exception ex)
-            {
-                mesg = ex.ToString();
-            }
-            return conn;
-        } 
-
-
-
+        
     }
 }
