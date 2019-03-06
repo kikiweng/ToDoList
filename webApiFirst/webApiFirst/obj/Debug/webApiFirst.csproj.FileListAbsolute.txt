@@ -111,3 +111,4 @@ c:\users\max\documents\visual studio 2015\Projects\webApiFirst\webApiFirst\bin\z
 c:\users\max\documents\visual studio 2015\Projects\webApiFirst\webApiFirst\obj\Debug\webApiFirst.csprojResolveAssemblyReference.cache
 c:\users\max\documents\visual studio 2015\Projects\webApiFirst\webApiFirst\obj\Debug\webApiFirst.dll
 c:\users\max\documents\visual studio 2015\Projects\webApiFirst\webApiFirst\obj\Debug\webApiFirst.pdb
+C:\Users\max\Desktop\ToDoList\webApiFirst\webApiFirst\obj\Debug\webApiFirst.csprojResolveAssemblyReference.cache
